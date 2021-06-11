@@ -7,20 +7,21 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 
+typedef struct __counter_t {
+    int value;
+    pthread_mutex_t lock;
+} counter_t;
+
 union semun {
     int val;
     struct semid_ds *buf;
     ushort *array;
 };
 
+
 #define PATH "/home/jongchank/key"
 
-typedef struct __counter_t {
-    int value;
-    pthread_mutex_t lock;
-} counter_t;
-
-unsigned int loop_cnt;
+unsigned int loop_cnt;  
 counter_t counter;
 
 void init(counter_t *c) {
@@ -28,7 +29,8 @@ void init(counter_t *c) {
     pthread_mutex_init(&c->lock, NULL);
 }
 
-void increment(counter_t *c) {    
+void increment(counter_t *c) {   
+
     key_t key;
     int semid;
     struct sembuf s;
@@ -48,6 +50,7 @@ void increment(counter_t *c) {
 }
 
 void decrement(counter_t *c) {
+
     key_t key;
     int semid;
     struct sembuf s;
@@ -67,9 +70,19 @@ void decrement(counter_t *c) {
 }
 
 int get(counter_t *c) {
-    pthread_mutex_lock(&c->lock);
+
+    s.sem_num = 0;
+    s.sem_op = -1; 
+    s.sem_flg = 0;
+    semop(semid, &s, 1);
+
     int rc = c->value;
-    pthread_mutex_unlock(&c->lock);
+
+    s.sem_num = 0;
+    s.sem_op = 1;
+    s.sem_flg = 0;
+    semop(semid, &s, 1);
+    
     return rc;
 }
 
@@ -88,6 +101,11 @@ void *mythread(void *arg)
                                                                              
 int main(int argc, char *argv[])
 {                    
+    key_t key;
+    int semid;
+    struct sembuf s;
+    union semun arg;
+
     loop_cnt = atoi(argv[1]);
 
     init(&counter);
@@ -109,10 +127,7 @@ int main(int argc, char *argv[])
     }
     printf("releasing sem\n");
 
-    key_t key;
-    int semid;
-    struct sembuf s;
-    union semun arg;
+
 
     key = ftok(PATH, 'z');
     if (key < 0) {
