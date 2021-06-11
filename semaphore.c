@@ -12,7 +12,6 @@ typedef struct __counter_t {
     key_t key;
     int semid;
     struct sembuf s;
-    union semun arg;
 } counter_t;
 
 union semun {
@@ -125,13 +124,7 @@ int main(int argc, char *argv[])
     pthread_join(p2, NULL); 
     printf("main: done [counter: %d] [should be: %d]\n", get(&counter), loop_cnt * 2);
 
-    
-    printf("getting sem\n");
-    for (int i = 0; i < 10; i++) {
-        printf("%s in critical section\n", argv[0]);
-        sleep(1);
-    }
-    printf("releasing sem\n");
+
 
 
 
