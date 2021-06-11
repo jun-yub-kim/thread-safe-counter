@@ -22,7 +22,7 @@ union semun {
 
 
 
-#define PATH "/home/jongchank/key"
+#define PATH "/mnt/c/Users/kimju/OneDrive/바탕 화면/컴퓨터구조 2차 과제/thread-safe-counter-main"
 
 unsigned int loop_cnt;  
 counter_t counter;
