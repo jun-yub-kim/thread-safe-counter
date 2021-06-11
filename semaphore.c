@@ -8,8 +8,11 @@
 #include <sys/sem.h>
 
 typedef struct __counter_t {
-    int value;
-    pthread_mutex_t lock;
+    int value;    
+    key_t key;
+    int semid;
+    struct sembuf s;
+    union semun arg;
 } counter_t;
 
 union semun {
@@ -19,6 +22,7 @@ union semun {
 };
 
 
+
 #define PATH "/home/jongchank/key"
 
 unsigned int loop_cnt;  
@@ -26,7 +30,6 @@ counter_t counter;
 
 void init(counter_t *c) {
     c->value = 0;
-    pthread_mutex_init(&c->lock, NULL);
 }
 
 void increment(counter_t *c) {   
@@ -70,6 +73,9 @@ void decrement(counter_t *c) {
 }
 
 int get(counter_t *c) {
+
+    int semid;
+    struct sembuf s;
 
     s.sem_num = 0;
     s.sem_op = -1; 
