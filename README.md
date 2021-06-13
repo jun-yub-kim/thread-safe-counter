@@ -16,7 +16,7 @@ However, to implement such a semaphore, a complex design is required.
 Even if you look at the code right away, it was necessary to code using int type variables to switch between 1 and 0.
 Due to this design, there is a difference in the instructions to be executed between the mutex and the semaphore and the difference in execution speed occurs.
 
-
+# environment
 OS Version : WSL2
 ```sh
 command
