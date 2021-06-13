@@ -12,7 +12,9 @@ command.
 However, in the case of a semaphore, it must be implemented so that as many threads as the value of the set variable can access it.
 To put it simply, a mutex has 1 key per room,
 A semaphore should be designed to have multiple identical locks in multiple rooms.
-However, to implement such a semaphore, a complex design is required.
+
+To implement such a semaphore, a complex design is required.
+
 Even if you look at the code right away, it was necessary to code using int type variables to switch between 1 and 0.
 Due to this design, there is a difference in the instructions to be executed between the mutex and the semaphore and the difference in execution speed occurs.
 
