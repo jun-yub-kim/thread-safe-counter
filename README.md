@@ -17,7 +17,7 @@ A semaphore should be designed to have multiple identical locks in multiple room
 To implement such a semaphore, a complex design is required.
 
 Even if you look at the code right away, it was necessary to code using int type variables to switch between 1 and 0.
-Due to this design, there is a difference in the instructions to be executed between the mutex and the semaphore and the difference in execution speed occurs.
+Because of this design, semaphores, unlike mutexes, cause differences in the instruction executed, which in turn causes differences in execution speed.
 
 # environment
 OS Version : WSL2
