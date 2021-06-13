@@ -7,12 +7,6 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 
-typedef struct __counter_t {
-    int value;    
-    key_t key;
-    int semid;
-    struct sembuf s;
-} counter_t;
 
 union semun {
     int val;
@@ -20,73 +14,79 @@ union semun {
     ushort *array;
 };
 
+typedef struct __counter_t {
+    int value;    
+    key_t key;
+    int semid;
+    union semun sem_arg;
+} counter_t;
 
 
-#define PATH "/mnt/c/Users/kimju/OneDrive/바탕 화면/컴퓨터구조 2차 과제/thread-safe-counter-main"
+#define PATH "/home/kimju"
 
 unsigned int loop_cnt;  
 counter_t counter;
 
 void init(counter_t *c) {
     c->value = 0;
+    c->key = ftok(PATH, 'z');
+    c->semid = semget(c-> key, 1, 0600 | IPC_CREAT);
+    c->sem_arg.val=1;
+    semctl(c->semid, 0, SETVAL, c->sem_arg);
 }
 
 void increment(counter_t *c) {   
 
-    key_t key;
-    int semid;
+
     struct sembuf s;
-    union semun arg;
+ 
 
     s.sem_num = 0;
     s.sem_op = -1; 
     s.sem_flg = 0;
-    semop(semid, &s, 1);
+    semop(c->semid, &s, 1);
 
     c->value++;
 
     s.sem_num = 0;
     s.sem_op = 1;
     s.sem_flg = 0;
-    semop(semid, &s, 1);
+    semop(c->semid, &s, 1);
 }
 
 void decrement(counter_t *c) {
 
-    key_t key;
-    int semid;
     struct sembuf s;
-    union semun arg;
+
 
     s.sem_num = 0;
     s.sem_op = -1; 
     s.sem_flg = 0;
-    semop(semid, &s, 1);
+    semop(c->semid, &s, 1);
 
     c->value--;
 
     s.sem_num = 0;
     s.sem_op = 1;
     s.sem_flg = 0;
-    semop(semid, &s, 1);
+    semop(c->semid, &s, 1);
 }
 
 int get(counter_t *c) {
 
-    int semid;
     struct sembuf s;
 
     s.sem_num = 0;
     s.sem_op = -1; 
     s.sem_flg = 0;
-    semop(semid, &s, 1);
+    semop(c->semid, &s, 1);
 
     int rc = c->value;
 
     s.sem_num = 0;
     s.sem_op = 1;
     s.sem_flg = 0;
-    semop(semid, &s, 1);
+    semop(c->semid, &s, 1);
     
     return rc;
 }
@@ -115,17 +115,7 @@ int main(int argc, char *argv[])
 
     init(&counter);
 
-    pthread_t p1, p2;
-    printf("main: begin [counter = %d]\n", get(&counter));
-    pthread_create(&p1, NULL, mythread, "A"); 
-    pthread_create(&p2, NULL, mythread, "B");
-    // join waits for the threads to finish
-    pthread_join(p1, NULL); 
-    pthread_join(p2, NULL); 
-    printf("main: done [counter: %d] [should be: %d]\n", get(&counter), loop_cnt * 2);
-
-
-
+    
 
 
     key = ftok(PATH, 'z');
@@ -138,6 +128,16 @@ int main(int argc, char *argv[])
         perror(argv[0]);
         exit(1);
     }
+
+    pthread_t p1, p2;
+    printf("main: begin [counter = %d]\n", get(&counter));
+    pthread_create(&p1, NULL, mythread, "A"); 
+    pthread_create(&p2, NULL, mythread, "B");
+    // join waits for the threads to finish
+    pthread_join(p1, NULL); 
+    pthread_join(p2, NULL); 
+    printf("main: done [counter: %d] [should be: %d]\n", get(&counter), loop_cnt * 2);
+
 
     return 0;
 }
