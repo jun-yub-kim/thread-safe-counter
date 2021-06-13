@@ -1,4 +1,5 @@
 # thread-safe-counter
+![시간](https://user-images.githubusercontent.com/81306023/121806312-4596dc80-cc8a-11eb-8e3f-6cd6d302f1c2.JPG)
 
 
 # analysis
