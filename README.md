@@ -8,6 +8,7 @@ A mutex simply blocks access to the critical section through the
 pthread_mutex_init(&c->lock, NULL);
 ```
 command.
+These commands always put the cpu on standby for faster processing.
 
 However, in the case of a semaphore, it must be implemented so that as many threads as the value of the set variable can access it.
 To put it simply, a mutex has 1 key per room,
